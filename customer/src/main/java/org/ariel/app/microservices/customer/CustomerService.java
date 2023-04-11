@@ -16,7 +16,12 @@ public record CustomerService(CustomerRepository customerRepository) {
                 .email(customerRegistrationReq.email())
                 .build();
 
+        // todo: check email valid and not taken
+        // todo: check if fraudster
+
         customerRepository.save(customer);
+
+        // todo: send notification
     }
 
     public List<Customer> getAllCustomers() {
