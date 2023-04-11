@@ -1,10 +1,9 @@
 package org.ariel.app.microservices.customer;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -15,5 +14,15 @@ public record CustomerController(CustomerService customerService) {
     public void registerCustomer(@RequestBody CustomerRegistrationReq customerReq) {
         log.info("new customer registration {}", customerReq);
         customerService.registerCustomer(customerReq);
+    }
+
+    @GetMapping
+    public List<Customer> getCustomers() {
+        return customerService.getAllCustomers();
+    }
+
+    @GetMapping ("{customerId}")
+    public Customer getCustomerById(@PathVariable Integer customerId) {
+        return customerService.getCustomerById(customerId);
     }
 }
