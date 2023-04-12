@@ -1,6 +1,7 @@
 package org.ariel.app.microservices.customer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ariel.app.microservices.clients.albums.Albums;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,5 +25,10 @@ public record CustomerController(CustomerService customerService) {
     @GetMapping ("{customerId}")
     public Customer getCustomerById(@PathVariable Integer customerId) {
         return customerService.getCustomerById(customerId);
+    }
+
+    @GetMapping ("{customerId}/albums")
+    public List<Albums> getCustomerAlbums(@PathVariable Integer customerId) {
+        return customerService.getAlbums();
     }
 }

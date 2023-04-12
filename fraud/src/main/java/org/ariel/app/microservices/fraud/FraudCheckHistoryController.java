@@ -1,6 +1,7 @@
 package org.ariel.app.microservices.fraud;
 
 import lombok.AllArgsConstructor;
+import org.ariel.app.microservices.clients.FraudCheckResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

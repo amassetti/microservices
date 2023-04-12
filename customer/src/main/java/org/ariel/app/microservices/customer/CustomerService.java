@@ -2,8 +2,11 @@ package org.ariel.app.microservices.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ariel.app.microservices.clients.FraudCheckResponse;
+import org.ariel.app.microservices.clients.FraudClient;
+import org.ariel.app.microservices.clients.albums.Albums;
+import org.ariel.app.microservices.clients.albums.AlbumsClient;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -13,7 +16,8 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final RestTemplate restTemplate;
+    private final FraudClient fraudClient;
+    private final AlbumsClient albumsClient;
 
     public void registerCustomer(CustomerRegistrationReq customerRegistrationReq) {
         log.info("CustomerService - registering customer {}", customerRegistrationReq);
@@ -27,11 +31,7 @@ public class CustomerService {
 
         customerRepository.saveAndFlush(customer);
 
-        FraudCheckResponse response = restTemplate.getForObject(
-                "http://FRAUD/api/v1/fraud-check/{customerId}",
-                FraudCheckResponse.class,
-                customer.getId()
-        );
+        FraudCheckResponse response = fraudClient.isFraudster(customer.getId());
 
         if (response.isFraudster()) {
             throw new IllegalStateException("Customer is fraudster");
@@ -47,5 +47,9 @@ public class CustomerService {
 
     public Customer getCustomerById(Integer customerId) {
         return customerRepository.findById(customerId).orElse(new Customer());
+    }
+
+    public List<Albums> getAlbums() {
+        return albumsClient.getAlbums();
     }
 }
