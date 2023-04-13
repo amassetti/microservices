@@ -2,10 +2,12 @@ package org.ariel.app.microservices.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ariel.app.microservices.clients.FraudCheckResponse;
-import org.ariel.app.microservices.clients.FraudClient;
+import org.ariel.app.microservices.clients.fraud.FraudCheckResponse;
+import org.ariel.app.microservices.clients.fraud.FraudClient;
 import org.ariel.app.microservices.clients.albums.Albums;
 import org.ariel.app.microservices.clients.albums.AlbumsClient;
+import org.ariel.app.microservices.clients.notification.NotificationClient;
+import org.ariel.app.microservices.clients.notification.NotificationRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,8 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
     private final AlbumsClient albumsClient;
+
+    private final NotificationClient notificationClient;
 
     public void registerCustomer(CustomerRegistrationReq customerRegistrationReq) {
         log.info("CustomerService - registering customer {}", customerRegistrationReq);
@@ -39,6 +43,15 @@ public class CustomerService {
 
 
         // todo: send notification
+
+        NotificationRequest notificationRequest = new NotificationRequest(
+                customer.getId(),
+                customer.getEmail(),
+                String.format("Hi %s, welcome to microservices magic!!!", customer.getFirstName())
+        );
+        // todo: make it async i. e. add it to queue
+        notificationClient.sendNotification(notificationRequest);
+
     }
 
     public List<Customer> getAllCustomers() {

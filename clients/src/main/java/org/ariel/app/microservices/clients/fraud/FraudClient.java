@@ -1,4 +1,4 @@
-package org.ariel.app.microservices.clients;
+package org.ariel.app.microservices.clients.fraud;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
