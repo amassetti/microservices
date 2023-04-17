@@ -15,6 +15,7 @@ public class FraudCheckHistoryService {
     private final FraudCheckHistoryRepository fraudCheckHistoryRepository;
 
     public boolean isFraudulentCustomer(Integer customerId) {
+        log.info("Checking customer with id {} is fraudster or not", customerId);
         boolean isFraudster = false;
         fraudCheckHistoryRepository.save(
                 FraudCheckHistory.builder()
