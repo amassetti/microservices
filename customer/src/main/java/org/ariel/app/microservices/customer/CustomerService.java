@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @AllArgsConstructor
+
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -22,6 +23,7 @@ public class CustomerService {
     private final AlbumsClient albumsClient;
 
     private final NotificationClient notificationClient;
+
 
     public void registerCustomer(CustomerRegistrationReq customerRegistrationReq) {
         log.info("CustomerService - registering customer {}", customerRegistrationReq);
@@ -37,7 +39,7 @@ public class CustomerService {
 
         FraudCheckResponse response = fraudClient.isFraudster(customer.getId());
 
-        if (response.isFraudster()) {
+        if (response != null && response.isFraudster()) {
             throw new IllegalStateException("Customer is fraudster");
         }
 
