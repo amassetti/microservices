@@ -2,11 +2,11 @@ package org.ariel.app.microservices.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ariel.app.microservices.clients.fraud.FraudCheckResponse;
-import org.ariel.app.microservices.clients.fraud.FraudClient;
+import org.ariel.app.microservices.amqp.RabbitMQMessageProducer;
 import org.ariel.app.microservices.clients.albums.Albums;
 import org.ariel.app.microservices.clients.albums.AlbumsClient;
-import org.ariel.app.microservices.clients.notification.NotificationClient;
+import org.ariel.app.microservices.clients.fraud.FraudCheckResponse;
+import org.ariel.app.microservices.clients.fraud.FraudClient;
 import org.ariel.app.microservices.clients.notification.NotificationRequest;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +21,8 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final FraudClient fraudClient;
     private final AlbumsClient albumsClient;
-
-    private final NotificationClient notificationClient;
-
+    private final RabbitMQMessageProducer notificationProducer;
+    private final NotificationConfig notificationConfig;
 
     public void registerCustomer(CustomerRegistrationReq customerRegistrationReq) {
         log.info("CustomerService - registering customer {}", customerRegistrationReq);
@@ -51,8 +50,15 @@ public class CustomerService {
                 customer.getEmail(),
                 String.format("Hi %s, welcome to microservices magic!!!", customer.getFirstName())
         );
-        // todo: make it async i. e. add it to queue
-        notificationClient.sendNotification(notificationRequest);
+
+        // old sync implementation with http
+        // notificationClient.sendNotification(notificationRequest);
+        // now, async with queues
+        notificationProducer.publish(
+                notificationRequest,
+                notificationConfig.getInternalExchange(),
+                notificationConfig.getInternalNotificationRoutingKey()
+        );
 
     }
 
