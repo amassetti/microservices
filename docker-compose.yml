@@ -34,15 +34,95 @@ services:
     container_name: zipkin
     ports:
       - "9411:9411"
+    networks:
+      - spring
+
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - spring
+
+  eureka-server:
+    image: amassetti/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - spring.profiles.active=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+
+  apigw:
+    image: amassetti/apigw:latest
+    container_name: apigw
+    ports:
+      - "8070:8070"
+    environment:
+      - spring.profiles.active=docker
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+      - eureka-server
+
+  fraud:
+    image: amassetti/fraud:latest
+    container_name: fraud
+    ports:
+      - "8082:8082"
+    environment:
+      - spring.profiles.active=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+  notification:
+    image: amassetti/notification:latest
+    container_name: notification
+    ports:
+      - "8090:8090"
+    environment:
+      - spring.profiles.active=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+  customer:
+    image: amassetti/customer:latest
+    container_name: customer
+    ports:
+      - "8080:8080"
+    environment:
+      - spring.profiles.active=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
 
 networks:
   postgres:
+    driver: bridge
+  spring:
     driver: bridge
 
 volumes:
